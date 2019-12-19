@@ -21,6 +21,7 @@ async def connect(
     create_protocol: Optional[Callable] = QuicConnectionProtocol,
     session_ticket_handler: Optional[SessionTicketHandler] = None,
     stream_handler: Optional[QuicStreamHandler] = None,
+        local_port: Optional[int] = None,
 ) -> AsyncGenerator[QuicConnectionProtocol, None]:
     """
     Connect to a QUIC server at the given `host` and `port`.
@@ -68,9 +69,12 @@ async def connect(
     )
 
     # connect
+    if local_port is None:
+        local_port = 0
+
     _, protocol = await loop.create_datagram_endpoint(
         lambda: create_protocol(connection, stream_handler=stream_handler),
-        local_addr=("::", 0),
+        local_addr=("::", local_port),
     )
     protocol = cast(QuicConnectionProtocol, protocol)
     protocol.connect(addr)
