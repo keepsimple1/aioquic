@@ -59,6 +59,9 @@ async def connect(
 
     # lookup remote address
     infos = await loop.getaddrinfo(host, port, type=socket.SOCK_DGRAM)
+
+    print(f'infos: {infos} server_name: {server_name}')
+
     addr = infos[0][4]
     if len(addr) == 2:
         # determine behaviour for IPv4
@@ -79,6 +82,9 @@ async def connect(
     )
 
     # connect
+    if local_port is None:
+        local_port = 0
+
     _, protocol = await loop.create_datagram_endpoint(
         lambda: create_protocol(connection, stream_handler=stream_handler),
         local_addr=(local_host, local_port),

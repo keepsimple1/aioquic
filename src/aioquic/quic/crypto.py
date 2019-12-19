@@ -96,7 +96,12 @@ class CryptoContext:
         hp_cipher_name, aead_cipher_name = CIPHER_SUITES[cipher_suite]
 
         key, iv, hp = derive_key_iv_hp(cipher_suite, secret)
-        self.aead = AEAD(aead_cipher_name, key, iv)
+        try:
+            self.aead = AEAD(aead_cipher_name, key, iv)
+        except CryptoError as err:
+            print(f'cipher name: {aead_cipher_name}')
+            raise err
+
         self.cipher_suite = cipher_suite
         self.hp = HeaderProtection(hp_cipher_name, hp)
         self.secret = secret

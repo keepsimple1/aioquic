@@ -57,6 +57,7 @@ class QuicConnectionProtocol(asyncio.DatagramProtocol):
 
         This method can only be called for clients and a single time.
         """
+        print(f'QUIC connect addr: {addr}')
         self._quic.connect(addr, now=self._loop.time())
         self.transmit()
 
@@ -101,6 +102,7 @@ class QuicConnectionProtocol(asyncio.DatagramProtocol):
         # send datagrams
         for data, addr in self._quic.datagrams_to_send(now=self._loop.time()):
             self._transport.sendto(data, addr)
+            # print(f'sent datagram to peer {addr}')
 
         # re-arm timer
         timer_at = self._quic.get_timer()
@@ -156,6 +158,13 @@ class QuicConnectionProtocol(asyncio.DatagramProtocol):
             reader.feed_data(event.data)
             if event.end_stream:
                 reader.feed_eof()
+
+    def is_stream_stop_sending(self, stream_id) -> bool:
+        """
+        Check if a stream has received STOP_SENDING frame
+        Child class should override this method
+        """
+        pass
 
     # private
 

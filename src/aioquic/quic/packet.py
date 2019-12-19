@@ -119,17 +119,21 @@ def pull_quic_header(buf: Buffer, host_cid_length: Optional[int] = None) -> Quic
         # long header packet
         version = buf.pull_uint32()
 
+        # print(f'QUIC version: {version}')
         destination_cid_length = buf.pull_uint8()
         if destination_cid_length > CONNECTION_ID_MAX_SIZE:
             raise ValueError(
                 "Destination CID is too long (%d bytes)" % destination_cid_length
             )
         destination_cid = buf.pull_bytes(destination_cid_length)
+        # print(f'Destination CID: {destination_cid.hex()} ({destination_cid_length} bytes)')
 
         source_cid_length = buf.pull_uint8()
         if source_cid_length > CONNECTION_ID_MAX_SIZE:
             raise ValueError("Source CID is too long (%d bytes)" % source_cid_length)
-        source_cid = buf.pull_bytes(source_cid_length)
+        source_cid = b""
+        if source_cid_length > 0:
+            source_cid = buf.pull_bytes(source_cid_length)
 
         if version == QuicProtocolVersion.NEGOTIATION:
             # version negotiation
@@ -165,7 +169,8 @@ def pull_quic_header(buf: Buffer, host_cid_length: Optional[int] = None) -> Quic
     else:
         # short header packet
         if not (first_byte & PACKET_FIXED_BIT):
-            raise ValueError("Packet fixed bit is zero")
+            print(f'first byte is: {first_byte} ({type(first_byte)})')
+            raise ValueError("Short header error: Packet fixed bit is zero - likely Google QUIC first byte")
 
         packet_type = first_byte & PACKET_TYPE_MASK
         destination_cid = buf.pull_bytes(host_cid_length)

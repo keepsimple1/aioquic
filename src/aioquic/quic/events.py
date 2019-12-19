@@ -110,3 +110,16 @@ class StreamReset(QuicEvent):
 
     stream_id: int
     "The ID of the stream that was reset."
+
+
+@dataclass
+class StreamStopSending(QuicEvent):
+    """
+    The StreamStopSending event is fired when the remote peer does not want any more data
+    """
+
+    error_code: int
+    "The error code that triggered the stop_sending."
+
+    stream_id: int
+    "The ID of the stream that received stop_sending."
