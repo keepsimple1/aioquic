@@ -285,7 +285,7 @@ async def run(
     data: str,
     parallel: int,
     print_response: bool,
-        local_port: int,
+    local_port: int,
 ) -> None:
     # parse URL
     parsed = urlparse(url)
@@ -379,7 +379,7 @@ if __name__ == "__main__":
         "--local-port",
         type=int,
         default=0,
-        help="local port to bind for connections"
+        help="local port to bind for connections",
     )
 
     args = parser.parse_args()

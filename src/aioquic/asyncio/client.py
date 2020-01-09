@@ -21,7 +21,7 @@ async def connect(
     create_protocol: Optional[Callable] = QuicConnectionProtocol,
     session_ticket_handler: Optional[SessionTicketHandler] = None,
     stream_handler: Optional[QuicStreamHandler] = None,
-        local_port: Optional[int] = None,
+    local_port: Optional[int] = None,
 ) -> AsyncGenerator[QuicConnectionProtocol, None]:
     """
     Connect to a QUIC server at the given `host` and `port`.
