@@ -52,9 +52,11 @@ class QuicServer(asyncio.DatagramProtocol):
         self._transport.close()
 
     def connection_made(self, transport: asyncio.BaseTransport) -> None:
+        print('connection made')
         self._transport = cast(asyncio.DatagramTransport, transport)
 
     def datagram_received(self, data: Union[bytes, Text], addr: NetworkAddress) -> None:
+        print('datagram received')
         data = cast(bytes, data)
         buf = Buffer(data=data)
 
