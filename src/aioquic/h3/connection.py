@@ -360,6 +360,9 @@ class H3Connection:
             stream_id, encode_frame(FrameType.HEADERS, frame_data), end_stream
         )
 
+    def peer_address(self):
+        return self._quic.peer_address()
+
     def _create_uni_stream(self, stream_type: int) -> int:
         """
         Create an unidirectional stream of the given type.

@@ -886,6 +886,12 @@ class QuicConnection:
             stream = self._streams[stream_id]
         stream.write(data, end_stream=end_stream)
 
+    def peer_address(self) -> Optional[NetworkAddress]:
+        if len(self._network_paths) > 0:
+            return self._network_paths[0].addr
+        else:
+            return None
+
     # Private
 
     def _alpn_handler(self, alpn_protocol: str) -> None:

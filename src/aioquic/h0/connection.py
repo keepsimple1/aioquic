@@ -61,3 +61,6 @@ class H0Connection:
         else:
             data = b""
         self._quic.send_stream_data(stream_id, data, end_stream)
+
+    def peer_address(self):
+        return self._quic.peer_address()
