@@ -55,6 +55,9 @@ async def connect(
 
     # lookup remote address
     infos = await loop.getaddrinfo(host, port, type=socket.SOCK_DGRAM)
+
+    print(f'infos: {infos}')
+
     addr = infos[0][4]
     if len(addr) == 2:
         addr = ("::ffff:" + addr[0], addr[1], 0, 0)
