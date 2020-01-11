@@ -59,8 +59,9 @@ async def connect(
     print(f'infos: {infos}')
 
     addr = infos[0][4]
-    if len(addr) == 2:
-        addr = ("::ffff:" + addr[0], addr[1], 0, 0)
+    addr = (addr[0], addr[1], 0, 0)
+    # if len(addr) == 2:
+    #     addr = ("::ffff:" + addr[0], addr[1], 0, 0)
 
     # prepare QUIC connection
     if configuration is None:
