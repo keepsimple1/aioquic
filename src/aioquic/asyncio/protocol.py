@@ -57,6 +57,7 @@ class QuicConnectionProtocol(asyncio.DatagramProtocol):
 
         This method can only be called for clients and a single time.
         """
+        print(f'QUIC connect addr: {addr}')
         self._quic.connect(addr, now=self._loop.time())
         self.transmit()
 
