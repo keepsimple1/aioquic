@@ -56,15 +56,17 @@ class QuicServer(asyncio.DatagramProtocol):
         self._transport = cast(asyncio.DatagramTransport, transport)
 
     def datagram_received(self, data: Union[bytes, Text], addr: NetworkAddress) -> None:
-        print('datagram received')
         data = cast(bytes, data)
         buf = Buffer(data=data)
+
+        # print(f'datagram_received ({len(data)}): {data.hex()}')
 
         try:
             header = pull_quic_header(
                 buf, host_cid_length=self._configuration.connection_id_length
             )
-        except ValueError:
+        except ValueError as e:
+            print(f'ValueError: {e}')
             return
 
         # version negotiation
@@ -72,6 +74,7 @@ class QuicServer(asyncio.DatagramProtocol):
             header.version is not None
             and header.version not in self._configuration.supported_versions
         ):
+            print(f'Sending version negotiation')
             self._transport.sendto(
                 encode_quic_version_negotiation(
                     source_cid=header.destination_cid,
