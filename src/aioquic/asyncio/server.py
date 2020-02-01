@@ -16,7 +16,7 @@ from ..quic.retry import QuicRetryTokenHandler
 from ..tls import SessionTicketFetcher, SessionTicketHandler
 from .protocol import QuicConnectionProtocol, QuicStreamHandler
 
-__all__ = ["serve"]
+__all__ = ["serve", "QuicServer"]
 
 
 class QuicServer(asyncio.DatagramProtocol):
@@ -147,6 +147,9 @@ class QuicServer(asyncio.DatagramProtocol):
 
         if protocol is not None:
             protocol.datagram_received(data, addr)
+
+    def send_ctl_packet(self, data: bytes, addr: NetworkAddress) -> None:
+        self._transport.sendto(data, addr)
 
     def _connection_id_issued(self, cid: bytes, protocol: QuicConnectionProtocol):
         self._protocols[cid] = protocol
