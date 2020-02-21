@@ -18,6 +18,8 @@ from .protocol import QuicConnectionProtocol, QuicStreamHandler
 
 __all__ = ["serve", "QuicServer"]
 
+CtrlPacketHandler = Callable[[str], bool]
+
 
 class QuicServer(asyncio.DatagramProtocol):
     def __init__(
@@ -29,6 +31,7 @@ class QuicServer(asyncio.DatagramProtocol):
         session_ticket_handler: Optional[SessionTicketHandler] = None,
         stateless_retry: bool = False,
         stream_handler: Optional[QuicStreamHandler] = None,
+        ctrl_handler: Optional[CtrlPacketHandler] = None,
     ) -> None:
         self._configuration = configuration
         self._create_protocol = create_protocol
@@ -39,6 +42,7 @@ class QuicServer(asyncio.DatagramProtocol):
         self._transport: Optional[asyncio.DatagramTransport] = None
 
         self._stream_handler = stream_handler
+        self._ctrl_handler = ctrl_handler
 
         if stateless_retry:
             self._retry = QuicRetryTokenHandler()
@@ -56,7 +60,12 @@ class QuicServer(asyncio.DatagramProtocol):
         self._transport = cast(asyncio.DatagramTransport, transport)
 
     def datagram_received(self, data: Union[bytes, Text], addr: NetworkAddress) -> None:
+        print('.', end='', flush=True)
         data = cast(bytes, data)
+        ctrl_packet = self._process_ctrl_events(data, addr)
+        if ctrl_packet:
+            return
+
         buf = Buffer(data=data)
 
         # print(f'datagram_received ({len(data)}): {data.hex()}')
@@ -165,6 +174,18 @@ class QuicServer(asyncio.DatagramProtocol):
             if proto == protocol:
                 del self._protocols[cid]
 
+    def _process_ctrl_events(self, data: bytes, addr: NetworkAddress) -> bool:
+        if data.startswith(b'CTRL_NAT_HELLO'):
+            print(f'Received CTRL_NAT_HELLO')
+            cid_end_index = 14 + 36 + 1  # 36: UUID length including hyphens, 1: one space
+            cid_start_index = 14 + 1
+            ctrl_cid = data[cid_start_index:cid_end_index].decode()
+            if self._ctrl_handler(ctrl_cid):
+                self._transport.sendto(b'CTRL_NAT_REPLY', addr)
+                print('sent back CTRL_NAT_REPLY')
+            return True
+        return False
+
 
 async def serve(
     host: str,
@@ -176,6 +197,7 @@ async def serve(
     session_ticket_handler: Optional[SessionTicketHandler] = None,
     stateless_retry: bool = False,
     stream_handler: QuicStreamHandler = None,
+    ctrl_handler: CtrlPacketHandler = None,
 ) -> QuicServer:
     """
     Start a QUIC server at the given `host` and `port`.
@@ -212,6 +234,7 @@ async def serve(
             session_ticket_handler=session_ticket_handler,
             stateless_retry=stateless_retry,
             stream_handler=stream_handler,
+            ctrl_handler=ctrl_handler,
         ),
         local_addr=(host, port),
     )
