@@ -160,6 +160,9 @@ class QuicServer(asyncio.DatagramProtocol):
     def send_ctl_packet(self, data: bytes, addr: NetworkAddress) -> None:
         self._transport.sendto(data, addr)
 
+    def num_of_connections(self) -> int:
+        return len(self._protocols)
+
     def _connection_id_issued(self, cid: bytes, protocol: QuicConnectionProtocol):
         self._protocols[cid] = protocol
 
