@@ -60,7 +60,6 @@ class QuicServer(asyncio.DatagramProtocol):
         self._transport = cast(asyncio.DatagramTransport, transport)
 
     def datagram_received(self, data: Union[bytes, Text], addr: NetworkAddress) -> None:
-        print('.', end='', flush=True)
         data = cast(bytes, data)
         ctrl_packet = self._process_ctrl_events(data, addr)
         if ctrl_packet:
