@@ -154,6 +154,13 @@ class QuicConnectionProtocol(asyncio.DatagramProtocol):
             if event.end_stream:
                 reader.feed_eof()
 
+    def is_stream_stop_sending(self, stream_id) -> bool:
+        """
+        Check if a stream has received STOP_SENDING frame
+        Child class should override this method
+        """
+        pass
+
     # private
 
     def _create_stream(
