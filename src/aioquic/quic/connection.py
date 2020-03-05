@@ -892,6 +892,9 @@ class QuicConnection:
         else:
             return None
 
+    def get_stream(self, stream_id: int) -> Optional[QuicStream]:
+        return self._streams.get(stream_id)
+
     # Private
 
     def _alpn_handler(self, alpn_protocol: str) -> None:
@@ -1616,10 +1619,12 @@ class QuicConnection:
         # check stream direction
         self._assert_stream_can_send(frame_type, stream_id)
 
-        # self._get_or_create_stream(frame_type, stream_id)
-        self._events.append(
-            events.StreamStopSending(error_code=error_code, stream_id=stream_id)
-        )
+        stream = self.get_stream(stream_id)
+        if stream is not None:
+            stream.stop_sending()
+            self._events.append(
+                events.StreamStopSending(error_code=error_code, stream_id=stream_id)
+            )
 
     def _handle_stream_frame(
         self, context: QuicReceiveContext, frame_type: int, buf: Buffer
