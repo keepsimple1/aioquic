@@ -102,7 +102,6 @@ class QuicConnectionProtocol(asyncio.DatagramProtocol):
         # send datagrams
         for data, addr in self._quic.datagrams_to_send(now=self._loop.time()):
             self._transport.sendto(data, addr)
-            # print(f'sent datagram to peer {addr}')
 
         # re-arm timer
         timer_at = self._quic.get_timer()
